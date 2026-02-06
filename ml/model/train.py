@@ -24,7 +24,17 @@ def train_model():
 
     data = pd.read_csv(csv_path)
     print("Data preview:")
-    print(data.head())
-    print("Shape:", data.shape)
+
+
+    data = data.drop(columns=["Timestamp"])
+
+    target_col = "Rate your academic stress index "
+
+    feature_cols = [col for col in data.columns if col != target_col]
+    X= data[feature_cols]
+    Y= data[target_col]
+
+
+
 
 train_model()
