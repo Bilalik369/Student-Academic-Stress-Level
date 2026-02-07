@@ -35,6 +35,32 @@ def train_model():
     Y= data[target_col]
 
 
+    categorical_cols  = ["Your Academic Stage" , 'Study Environment', 'What coping strategy you use as a student?','Do you have any bad habits like smoking, drinking on a daily basis?']
+    numerical_cols = [col for col in X.columns if col not in categorical_cols]
+
+    preprocessor = ColumnTransformer(
+        transformers = [
+            ('num' , StandardScaler() , numerical_cols)
+            ('cat' , OneHotEncoder(handel_unknown= 'ignore') , categorical_cols)
+
+        ]
+    )
+    pipeline = Pipeline([
+        ('preprocessor' , preprocessor),
+        ('model' , RandomForestRegressor(n_estimators = 100 , random_state=42))
+    ])
+
+    X_train , X_test , Y_train , Y_test = train_test_split(test_size=20 , random_state=42)
+
+    pipeline.fit(X_train , Y_train)
+
+    model_dir = os.path.join(BASE_DIR, "../model")
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "stress_model.pkl")
+    with open(model_path, 'wb') as f:
+        pickle.dump(pipeline, f)
+
+
 
 
 train_model()
