@@ -17,12 +17,10 @@ def load_model():
     return pipeline
 
 def predict_stress(factors):
-
     pipeline = load_model()
-    
     if not pipeline:
         return {"error": "Model not loaded."}
-    
+
     feature_order = [
         'Your Academic Stage',
         'Peer pressure',
@@ -32,13 +30,10 @@ def predict_stress(factors):
         'Do you have any bad habits like smoking, drinking on a daily basis?',
         'What would you rate the academic  competition in your student life'
     ]
-    
-   
+
     X = pd.DataFrame([factors], columns=feature_order)
-    
-    
     predicted_stress = pipeline.predict(X)[0]
-    
+
  
     if predicted_stress < 3:
         category = 'Low'
@@ -48,23 +43,43 @@ def predict_stress(factors):
         category = 'High'
     else:
         category = 'Critical'
+
     
- 
     recommendations = []
-    if predicted_stress >= 7:
-        recommendations.append('Consider speaking with a counselor for support.')
+
+   
+    if predicted_stress < 3:
+        recommendations.append("Keep doing what you're doing; your stress is low.")
+    elif predicted_stress < 5:
+        recommendations.append("Try to manage stress with small breaks and relaxation techniques.")
+    elif predicted_stress < 7:
+        recommendations.append("Plan your study schedule and use effective coping strategies.")
+    else:
+        recommendations.append("Your stress is very high; consider seeking professional support.")
+
+   
     if factors.get('Peer pressure', 0) > 7:
-        recommendations.append('Try to manage peer pressure with breaks and planning.')
-    if factors.get('Academic pressure from your home', 0) > 7:
-        recommendations.append('Talk with your family about realistic expectations.')
-    if not recommendations:
-        recommendations.append('Keep maintaining your current healthy habits.')
+        recommendations.append("Reduce peer pressure by setting boundaries and taking breaks.")
+
     
+    if factors.get('Academic pressure from your home', 0) > 7:
+        recommendations.append("Communicate realistic expectations with your family.")
+
+    
+    if str(factors.get('Do you have any bad habits like smoking, drinking on a daily basis?')).lower() == 'yes':
+        recommendations.append("Consider reducing habits that negatively affect your health or focus.")
+
+  
+    coping = str(factors.get('What coping strategy you use as a student?')).lower()
+    if coping not in ['exercise', 'meditation', 'sports', 'relaxation']:
+        recommendations.append("Try healthy coping strategies like exercise, meditation, or sports.")
+
     return {
         'stress_level': float(predicted_stress),
         'stress_category': category,
         'recommendations': recommendations
     }
+
 
 if __name__ == '__main__':
     test_factors = {
