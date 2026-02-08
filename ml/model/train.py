@@ -1,107 +1,84 @@
-import numpy as np
-import pandas as pd 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split
 import pickle
+import pandas as pd
 import os
 
-
-def train_model():
-
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))  
-    csv_path = os.path.join(BASE_DIR, "../data/stress_data.csv")
-    csv_path = os.path.abspath(csv_path)
-
-    print("CSV Path:", csv_path)
-
-
-    data = pd.read_csv(csv_path)
-
-    data.columns = data.columns.str.strip()
-
-    print("Columns:")
-    print(data.columns)
-
-    print("\nData preview:")
-    print(data.head())
-
-
-  
-    if "Timestamp" in data.columns:
-        data = data.drop(columns=["Timestamp"])
-
-
-
-    target_col = "Rate your academic stress index"
-
-
-  
-    X = data.drop(columns=[target_col])
-    y = data[target_col]
-
-
-
-    categorical_cols = [
-        'Your Academic Stage',
-        'Study Environment', 
-        'What coping strategy you use as a student?',
-        'Do you have any bad habits like smoking, drinking on a daily basis?'
-    ]
-
-
- 
-    numerical_cols = [col for col in X.columns if col not in categorical_cols]
-
+def load_model():
    
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', StandardScaler(), numerical_cols),
-            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_cols)
-        ]
-    )
+   
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(script_dir, 'stress_model.pkl')
+    
+    if not os.path.exists(model_path):
+        print(f"Model file not found at: {model_path}")
+        return None
+    
+    with open(model_path, 'rb') as f:
+        pipeline = pickle.load(f)
+    
+    return pipeline
 
-
-    pipeline = Pipeline([
-        ('preprocessor', preprocessor),
-        ('model', RandomForestRegressor(
-            n_estimators=100,
-            random_state=42
-        ))
-    ])
-
+def predict_stress(factors):
+    pipeline = load_model()
+    if not pipeline:
+        return {"error": "Model not loaded."}
 
     
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y,
-        test_size=0.2,
-        random_state=42
-    )
+    feature_order = [
+        'Your Academic Stage',
+        'Peer pressure',
+        'Academic pressure from your home',
+        'Study Environment',
+        'What coping strategy you use as a student?',
+        'Do you have any bad habits like smoking, drinking on a daily basis?',
+        'What would you rate the academic  competition in your student life'
+    ]
 
+    X = pd.DataFrame([factors], columns=feature_order)
 
-    pipeline.fit(X_train, y_train)
+ 
+    predicted_stress = pipeline.predict(X)[0]
 
+    
+    if predicted_stress < 3:
+        category = 'Low'
+    elif predicted_stress < 5:
+        category = 'Moderate'
+    elif predicted_stress < 7:
+        category = 'High'
+    else:
+        category = 'Critical'
 
+ 
+    recommendations = []
+    if predicted_stress >= 7:
+        recommendations.append('Consider speaking with a counselor for support.')
+    if factors.get('Peer pressure', 0) > 7:
+        recommendations.append('Try to manage peer pressure with breaks and planning.')
+    if factors.get('Academic pressure from your home', 0) > 7:
+        recommendations.append('Talk with your family about realistic expectations.')
+    if not recommendations:
+        recommendations.append('Keep maintaining your current healthy habits.')
 
-    model_dir = os.path.join(BASE_DIR, "../model")
-    os.makedirs(model_dir, exist_ok=True)
+    return {
+        'stress_level': float(predicted_stress),
+        'stress_category': category,
+        'recommendations': recommendations
+    }
 
-    model_path = os.path.join(model_dir, "stress_model.pkl")
+if __name__ == '__main__':
+    test_factors = {
+        'Your Academic Stage': 'Undergraduate',
+        'Peer pressure': 6,
+        'Academic pressure from your home': 5,
+        'Study Environment': 'Library',
+        'What coping strategy you use as a student?': 'Exercise',
+        'Do you have any bad habits like smoking, drinking on a daily basis?': 'No',
+        'What would you rate the academic  competition in your student life': 6
+    }
 
-    with open(model_path, "wb") as f:
-        pickle.dump(pipeline, f)
-
-
-
-    train_score = pipeline.score(X_train, y_train)
-    test_score = pipeline.score(X_test, y_test)
-
-    print(f"\nTraining R² score: {train_score:.2f}")
-    print(f"Test R² score: {test_score:.2f}")
-    print(f"Model saved at: {model_path}")
-
-
-if __name__ == "__main__":
-    train_model()
+    result = predict_stress(test_factors)
+    print(f"Predicted Stress Level: {result['stress_level']:.2f}")
+    print(f"Stress Category: {result['stress_category']}")
+    print("Recommendations:")
+    for rec in result['recommendations']:
+        print(f"  - {rec}")
