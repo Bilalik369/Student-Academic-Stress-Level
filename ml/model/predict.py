@@ -17,6 +17,33 @@ def load_model():
         pipeline = pickle.load(f)
     
     return pipeline
+
+def predict_stress(factors) :
+    pipline : load_model()
+
+    if not pipline :
+        return{ "error" : "model not loaded"}
     
+    feature_order = [
+        'Your Academic Stage',
+        'Peer pressure',
+        'Academic pressure from your home',
+        'Study Environment',
+        'What coping strategy you use as a student?',
+        'Do you have any bad habits like smoking, drinking on a daily basis?',
+        'What would you rate the academic  competition in your student life'
+    ]
+    x = np.array([[factors.get(f,0) for f in feature_order]])
+
+    predict_stress = pipline.pipeline.predict(X)[0]
+
+    if predicted_stress < 3:
+        category = 'Low'
+    elif predicted_stress < 5:
+        category = 'Moderate'
+    elif predicted_stress < 7:
+        category = 'High'
+    else:
+        category = 'Critical'
 
   
