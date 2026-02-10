@@ -1,5 +1,7 @@
 {
+  "type": "module",
   "dependencies": {
+    "type" : "model",
     "axios": "^1.13.5",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
