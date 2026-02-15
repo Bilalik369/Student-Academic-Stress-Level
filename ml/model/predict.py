@@ -9,7 +9,7 @@ def load_model():
     
     if not os.path.exists(model_path):
         print(f"Model file not found at: {model_path}")
-        return None
+        return None 
     
     with open(model_path, 'rb') as f:
         pipeline = pickle.load(f)
