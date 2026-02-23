@@ -1,10 +1,18 @@
-
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from ml.model.predict import predict_stress
 
 app = FastAPI()
 
+# ✅ CORS CONFIG
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class StressInput(BaseModel):
     Your_Academic_Stage: str
@@ -14,6 +22,7 @@ class StressInput(BaseModel):
     Coping_Strategy: str
     Bad_Habits: str
     Academic_Competition: float
+
 
 @app.post("/predict")
 def predict(data: StressInput):

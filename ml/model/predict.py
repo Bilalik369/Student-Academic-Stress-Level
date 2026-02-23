@@ -2,24 +2,34 @@ import pickle
 import pandas as pd
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "stress_model.pkl")
+
+
 def load_model():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(script_dir, 'stress_model.pkl')
-    
-    if not os.path.exists(model_path):
-        print(f"Model file not found at: {model_path}")
-        return None 
-    
-    with open(model_path, 'rb') as f:
-        pipeline = pickle.load(f)
-    
-    return pipeline
+    if not os.path.exists(MODEL_PATH):
+        raise FileNotFoundError("Model file not found. Please train the model first.")
+
+    with open(MODEL_PATH, "rb") as f:
+        return pickle.load(f)
+
+
+MODEL = load_model()
+
+
+def categorize_stress(score):
+    if score < 3:
+        return "Low"
+    elif score < 5:
+        return "Moderate"
+    elif score < 7:
+        return "High"
+    else:
+        return "Critical"
 
 def predict_stress(factors):
-    pipeline = load_model()
-    if not pipeline:
-        return {"error": "Model not loaded."}
 
+   
     feature_order = [
         'Your Academic Stage',
         'Peer pressure',
@@ -30,33 +40,26 @@ def predict_stress(factors):
         'What would you rate the academic  competition in your student life'
     ]
 
+ 
     X = pd.DataFrame([factors], columns=feature_order)
-    predicted_stress = pipeline.predict(X)[0]
 
+ 
+    score = float(MODEL.predict(X)[0])
+    category = categorize_stress(score)
 
-    if predicted_stress < 3:
-        category = 'Low'
-    elif predicted_stress < 5:
-        category = 'Moderate'
-    elif predicted_stress < 7:
-        category = 'High'
-    else:
-        category = 'Critical'
-
-   
     recommendations = []
 
-    if predicted_stress < 3:
+    if score < 3:
         recommendations.append({
             "ayat": "﴿ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ ﴾ (الرعد 28)",
             "advice": "استمر على عاداتك الجيدة وركز على الدراسة بهدوء."
         })
-    elif predicted_stress < 5:
+    elif score < 5:
         recommendations.append({
             "ayat": "﴿ وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا ﴾ (الطلاق 2)",
             "advice": "خذ استراحة قصيرة بين المراجعة واستخدم تقنيات التنفس والاسترخاء."
         })
-    elif predicted_stress < 7:
+    elif score < 7:
         recommendations.append({
             "ayat": "﴿ فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴾ (الشرح 5-6)",
             "advice": "نظّم جدولك الدراسي واستعمل استراتيجيات فعّالة لإدارة الوقت."
@@ -71,36 +74,38 @@ def predict_stress(factors):
             "advice": "حاول تخصيص وقت يومي للصلاة أو التأمل لتهدئة العقل."
         })
 
-   
+ 
     if factors.get('Peer pressure', 0) > 7:
         recommendations.append({
             "ayat": "﴿ وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنتُمُ الْأَعْلَوْنَ ﴾ (آل عمران 139)",
             "advice": "ضع حدود واضحة مع أصدقائك وخذ استراحة عند الحاجة."
         })
 
-
+  
     if factors.get('Academic pressure from your home', 0) > 7:
         recommendations.append({
             "ayat": "﴿ رَبِّ اشْرَحْ لِي صَدْرِي ۝ وَيَسِّرْ لِي أَمْرِي ﴾ (طه 25-26)",
             "advice": "تواصل مع عائلتك واشرح لهم توقعاتك الواقعية."
         })
 
-   
+
     if str(factors.get('Do you have any bad habits like smoking, drinking on a daily basis?')).lower() == 'yes':
         recommendations.append({
             "ayat": "﴿ وَلَا تُلْقُوا بِأَيْدِيكُمْ إِلَى التَّهْلُكَةِ ﴾ (البقرة 195)",
             "advice": "قلّل من العادات التي تؤثر على صحتك وتركيزك."
         })
 
+
     return {
-        'stress_level': float(predicted_stress),
-        'stress_category': category,
-        'recommendations': recommendations
+        "stress_level": round(score, 2),
+        "stress_category": category,
+        "recommendations": recommendations
     }
 
 
-if __name__ == '__main__':
-    test_factors = {
+if __name__ == "__main__":
+
+    test_input = {
         'Your Academic Stage': 'Undergraduate',
         'Peer pressure': 8,
         'Academic pressure from your home': 6,
@@ -110,9 +115,10 @@ if __name__ == '__main__':
         'What would you rate the academic  competition in your student life': 7
     }
 
-    result = predict_stress(test_factors)
+    result = predict_stress(test_input)
 
-    print(f"Predicted Stress Level: {result['stress_level']:.2f}")
+    
+    print(f"Predicted Stress Level: {result['stress_level']}")
     print(f"Stress Category: {result['stress_category']}")
     print("Recommendations:")
     for rec in result['recommendations']:
