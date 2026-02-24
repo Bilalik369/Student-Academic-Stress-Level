@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+/* Base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-dark-300 dark:bg-dark-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-dark-400 dark:bg-dark-500;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-primary-200 dark:bg-primary-800 text-primary-900 dark:text-primary-100;
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Glass card effect */
+  .glass-card {
+    @apply bg-white/70 dark:bg-dark-800/70 
+           backdrop-blur-xl 
+           border border-white/20 dark:border-dark-700/50
+           shadow-glass dark:shadow-glass-dark
+           rounded-2xl;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent 
+           bg-gradient-to-r from-primary-500 via-secondary-500 to-accent-500;
+  }
+
+  /* Input base styles */
+  .input-base {
+    @apply w-full px-4 py-3.5 
+           bg-white/50 dark:bg-dark-800/50
+           border border-dark-200 dark:border-dark-600
+           rounded-xl
+           text-dark-800 dark:text-dark-100
+           placeholder:text-dark-400 dark:placeholder:text-dark-500
+           focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+           transition-all duration-300;
+  }
+
+  /* Button base styles */
+  .btn-primary {
+    @apply px-6 py-3.5 
+           bg-gradient-to-r from-primary-500 to-primary-600
+           hover:from-primary-600 hover:to-primary-700
+           text-white font-semibold
+           rounded-xl
+           shadow-soft hover:shadow-glow
+           transform hover:-translate-y-0.5
+           transition-all duration-300
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3.5 
+           bg-white/50 dark:bg-dark-700/50
+           hover:bg-white/80 dark:hover:bg-dark-600/50
+           text-dark-700 dark:text-dark-200
+           font-semibold
+           rounded-xl
+           border border-dark-200 dark:border-dark-600
+           shadow-soft
+           transform hover:-translate-y-0.5
+           transition-all duration-300;
+  }
+
+  /* Animated background */
+  .animated-bg {
+    @apply bg-gradient-mesh dark:bg-gradient-dark-mesh bg-dark-50 dark:bg-dark-950;
+    background-size: 200% 200%;
+    animation: gradient 15s ease infinite;
+  }
+
+  /* Floating animation for decorative elements */
+  .float-element {
+    @apply absolute rounded-full opacity-30 dark:opacity-20 blur-3xl;
+  }
+}
+
+/* Utility styles */
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text balance for headings */
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Animation keyframes */
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Lottie animation container */
+.lottie-container {
+  @apply w-full h-full flex items-center justify-center;
+}
+
+.lottie-container > div {
+  @apply w-full max-w-md;
+}
