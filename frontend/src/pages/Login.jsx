@@ -5,8 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Input, Button, Card, Alert } from '../components/ui';
 
-// Import your Lottie animation - update path as needed
-import stressAnimation from '../assets/animations/login-animation.json';
+// Import Lottie animation
+import stressAnimation from '../assets/Stressed Woman at work.json';
 
 /**
  * Login Page Component
@@ -141,8 +141,28 @@ const Login = () => {
       {/* Main content container */}
       <div className="flex-1 flex flex-col lg:flex-row items-center justify-center p-6 lg:p-12 gap-8 lg:gap-16 relative z-10">
         
+        {/* Lottie Animation - shown near form on all screen sizes */}
+        <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:flex-1 lg:max-w-lg xl:max-w-xl flex items-center justify-center animate-fade-in order-1 lg:order-2">
+          <div className="w-full">
+            <Lottie
+              animationData={stressAnimation}
+              loop
+              autoplay
+              className="w-full h-auto"
+            />
+            <div className="text-center mt-4 lg:mt-6">
+              <h2 className="text-xl lg:text-2xl font-bold text-dark-800 dark:text-white mb-2">
+                Student Stress Analyzer
+              </h2>
+              <p className="text-sm lg:text-base text-dark-500 dark:text-dark-400 max-w-sm mx-auto">
+                Understand your stress levels and get personalized recommendations for better mental health.
+              </p>
+            </div>
+          </div>
+        </div>
+        
         {/* Left side - Login Form */}
-        <div className="w-full max-w-md animate-slide-up">
+        <div className="w-full max-w-md animate-slide-up order-2 lg:order-1">
           <Card variant="glass" padding="lg" className="w-full">
             {/* Header */}
             <div className="text-center mb-8">
@@ -270,26 +290,6 @@ const Login = () => {
               Privacy Policy
             </Link>
           </p>
-        </div>
-
-        {/* Right side - Lottie Animation */}
-        <div className="hidden lg:flex flex-1 max-w-lg xl:max-w-xl items-center justify-center animate-fade-in">
-          <div className="w-full">
-            <Lottie
-              animationData={stressAnimation}
-              loop
-              autoplay
-              className="w-full h-auto"
-            />
-            <div className="text-center mt-6">
-              <h2 className="text-2xl font-bold text-dark-800 dark:text-white mb-2">
-                Student Stress Analyzer
-              </h2>
-              <p className="text-dark-500 dark:text-dark-400 max-w-sm mx-auto">
-                Understand your stress levels and get personalized recommendations for better mental health.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
